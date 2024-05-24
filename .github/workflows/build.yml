@@ -1,0 +1,34 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:  
+
+jobs:
+  build:
+    runs-on: windows-2019
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build
+        env:
+          RUSTFLAGS: -C strip=none
+          OUT_DIR: release
+        run: cargo build --release
+
+      - name: List files recursively
+        run: Get-ChildItem -Recurse
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: steam-tui-windows
+          path: |
+            target/release/*.exe
+            target/release/*.pdb
